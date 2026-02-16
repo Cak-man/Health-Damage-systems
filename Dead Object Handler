@@ -1,0 +1,31 @@
+using UnityEngine;
+using System.Collections;
+
+public class DeadObjectHandler : MonoBehaviour
+{
+    public GameObject prefabToSpawn;  
+    public HealthSystem healthScript; 
+    public float delay = 2f;         
+
+    private bool isProcessing = false; // Tekrar tekrar çalışmasını engellemek için
+
+    void Update()
+    {
+        if (healthScript != null && healthScript.isDead && !isProcessing)
+        {
+            isProcessing = true;
+            StartCoroutine(SpawnAndDestroy());
+        }
+    }
+
+    IEnumerator SpawnAndDestroy()
+    {
+        yield return new WaitForSeconds(delay);
+
+
+        Instantiate(prefabToSpawn, transform.position, transform.rotation);
+
+
+        Destroy(gameObject);
+    }
+}
