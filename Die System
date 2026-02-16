@@ -1,0 +1,37 @@
+
+using UnityEngine;
+
+public class HealthWatcher : MonoBehaviour
+{
+    public HealthSystem healthSystem;   
+    public Animator animator;           
+    public AudioSource deathAudio;      
+
+    private bool wasDead = false;     
+
+    void Update()
+    {
+        if (healthSystem == null || animator == null) return;
+
+        if (!wasDead && healthSystem.isDead)
+        {
+            Destroy(GetComponent<NoktaYuruyus>());
+            wasDead = true;
+
+
+            animator.SetTrigger("Die");
+            Debug.Log("Animasyon: Die tetiklendi.");
+
+
+            if (deathAudio != null)
+            {
+                deathAudio.Play();
+            }
+            else
+            {
+                Debug.LogWarning("DeathAudio atanmadı!");
+            }
+        }
+    }
+}
+
