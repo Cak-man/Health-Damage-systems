@@ -1,0 +1,61 @@
+using UnityEngine;
+
+public class RaycastDamageDealer : MonoBehaviour
+{
+    [Header("Raycast Ayarları")]
+    public float rayDistance = 100f; // Işının maksimum mesafesi
+    public int damageAmount = 10;    // Verilecek hasar miktarı
+    public float damageDelay = 0.5f; // Hasarın gecikme süresi
+
+    [Header("Animasyon ve Ses")]
+    public Animator animator;                  // Animatör referansı
+    public string attackAnimationName = "Attack"; // Çalınacak animasyonun adı
+    public AudioSource chosenAudioSource;      // Seçtiğin AudioSource (Inspector’dan)
+    public AudioClip chosenClip;               // Seçtiğin AudioClip (Inspector’dan)
+
+    private RaycastHit lastHit; // Son vurulan hedef
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0)) // Sol tık
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out lastHit, rayDistance) && lastHit.collider.CompareTag("npc"))
+            {
+                // Animasyonu oynat
+                if (animator != null && !string.IsNullOrEmpty(attackAnimationName))
+                {
+                    animator.Play(attackAnimationName);
+                }
+
+                // Seçilen AudioSource’tan seçilen sesi çal
+                if (chosenAudioSource != null && chosenClip != null)
+                {
+                    chosenAudioSource.PlayOneShot(chosenClip);
+                }
+                else
+                {
+                    Debug.LogWarning("AudioSource veya AudioClip atanmadı.");
+                }
+
+                // Hasarı gecikmeli uygula
+                Invoke(nameof(DealStoredDamage), damageDelay);
+            }
+        }
+    }
+
+    void DealStoredDamage()
+    {
+        if (lastHit.collider != null)
+        {
+            HealthSystem health = lastHit.collider.GetComponent<HealthSystem>();
+
+            if (health != null)
+            {
+                health.TakeDamage(damageAmount);
+                Debug.Log("NPC'ye hasar verildi (gecikmeli).");
+            }
+        }
+    }
+}
